@@ -1,0 +1,161 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación sobre Ornitorrincos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #2c3e50, #3498db);
+            color: white;
+            text-align: center;
+            padding: 2em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        nav {
+            background-color: #34495e;
+            padding: 1em;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1em;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #3498db;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2em auto;
+            padding: 0 1em;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 2em;
+            margin-bottom: 2em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5em;
+        }
+        .section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1em 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            nav a {
+                display: block;
+                margin: 0.5em 0;
+            }
+            .section {
+                padding: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ornitorrincos: Una Maravilla de la Naturaleza</h1>
+    </header>
+    <nav>
+        <a href="#origen">Origen y Evolución</a>
+        <a href="#caracteristicas">Características Únicas</a>
+        <a href="#habitat">Hábitat y Conservación</a>
+    </nav>
+    <div class="container">
+        <div class="section" id="origen">
+            <h2>Origen y Evolución</h2>
+            <p>El ornitorrinco (Ornithorhynchus anatinus) es uno de los mamíferos más antiguos del planeta, con fósiles que datan de hace más de 100 millones de años. Este monotremado, que pone huevos, es un enlace vivo entre reptiles y mamíferos, mostrando una evolución única.</p>
+            <img src="images/platypus1.jpg" alt="Fósil de ornitorrinco">
+        </div>
+        <div class="section" id="caracteristicas">
+            <h2>Características Únicas</h2>
+            <p>El ornitorrinco es conocido por su pico en forma de pato, patas palmeadas y capacidad de detectar campos eléctricos. Además, los machos poseen un espolón venenoso en las patas traseras, una rareza entre mamíferos.</p>
+            <img src="images/platypus2.jpg" alt="Ornitorrinco nadando">
+        </div>
+        <div class="section" id="habitat">
+            <h2>Hábitat y Conservación</h2>
+            <p>Habita en ríos y arroyos del este de Australia y Tasmania. Su hábitat está amenazado por la contaminación y el cambio climático, lo que hace crucial su conservación para proteger esta especie única.</p>
+            <img src="images/platypus3.jpg" alt="Hábitat del ornitorrinco">
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2025 Presentación sobre Ornitorrincos. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
